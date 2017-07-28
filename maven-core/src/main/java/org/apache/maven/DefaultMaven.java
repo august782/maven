@@ -343,7 +343,8 @@ public class DefaultMaven
         String projectOrderFilename = session.getUserProperties().getProperty( "maven.project.order.file" );
 
         // If there is no project order file name set, just return the projects
-        if ( projectOrderFilename == null ) {
+        if ( projectOrderFilename == null )
+        {
             return projects;
         }
 
@@ -351,8 +352,10 @@ public class DefaultMaven
         List<String> lines = new ArrayList<String>();
         try
         {
-            lines = Files.readAllLines( FileSystems.getDefault().getPath( ( projectOrderFilename ) ), StandardCharsets.UTF_8 );
-        } catch ( IOException ioe )
+            lines = Files.readAllLines( FileSystems.getDefault().getPath( ( projectOrderFilename ) ),
+                StandardCharsets.UTF_8 );
+        }
+        catch ( IOException ioe )
         {
             // Error with reading the ordering file, log and return the default list of projects
             logger.warn( "Failed to use ordering file: " + projectOrderFilename );
@@ -386,7 +389,7 @@ public class DefaultMaven
                 }
             }
 
-        });
+        } );
 
         return projects;
     }

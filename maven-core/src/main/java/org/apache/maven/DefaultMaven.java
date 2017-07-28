@@ -339,25 +339,27 @@ public class DefaultMaven
 
     private List<MavenProject> sortProjectsFromFileIfApplicable( MavenSession session )
     {
-        // If there is no project order file name set, just return the projects
         List<MavenProject> projects = session.getProjects();
         String projectOrderFilename = session.getUserProperties().getProperty( "maven.project.order.file" );
+
+        // If there is no project order file name set, just return the projects
         if ( projectOrderFilename == null ) {
             return projects;
         }
 
-        // Read in the projects (identified by artifact ID) and get their ordering from the file
-        final Map<String, Integer> map = new HashMap<String, Integer>();
+        // Read in the project artifact IDs' ordering from the file
         List<String> lines = new ArrayList<String>();
         try
         {
-            lines = Files.readAllLines( FileSystems.getDefault().getPath( ( projectOrderFilename ) ), StandardCharsets.UTF_8);
+            lines = Files.readAllLines( FileSystems.getDefault().getPath( ( projectOrderFilename ) ), StandardCharsets.UTF_8 );
         } catch ( IOException ioe )
         {
-            // Error with reading the prioritization file, log and return the default list of projects
-            logger.warn( "Failed to use prioritization file: " + projectOrderFilename );
+            // Error with reading the ordering file, log and return the default list of projects
+            logger.warn( "Failed to use ordering file: " + projectOrderFilename );
             return projects;
         }
+
+        final Map<String, Integer> map = new HashMap<String, Integer>();
         int i = 0;
         for ( Iterator<String> it = lines.iterator(); it.hasNext(); )
         {
@@ -365,13 +367,14 @@ public class DefaultMaven
         }
 
         // Sort the projects based on ordering of each project in the file
-        Collections.sort( projects, new Comparator<MavenProject>() {
+        Collections.sort( projects, new Comparator<MavenProject>()
+        {
+
             public int compare( MavenProject p1, MavenProject p2 )
             {
                 Integer i1 = map.get( p1.getArtifact().getArtifactId() );
                 Integer i2 = map.get( p2.getArtifact().getArtifactId() );
-                // If project or the other is missing from the mapping, assume it is new, and favor the new ones
-                // If both are new, then they are considered "equal" and ordered by their default ordering in the original list
+                // If p1 or p2 is missing from the mapping, assume it is new, and favor the new ones as first
                 // Otherwise, just order based on their position in the file
                 if ( i1 == null )
                 {
@@ -382,6 +385,7 @@ public class DefaultMaven
                     return i2 == null ? 1 : i1 - i2;
                 }
             }
+
         });
 
         return projects;
